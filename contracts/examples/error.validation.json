@@ -1,0 +1,15 @@
+{
+  "code": "VALIDATION_ERROR",
+  "message": "Request body does not match contract version 1.0.",
+  "request_id": "c0a8012e-7f4b-4d0e-9a53-2b1f0f6d8a11",
+  "details": [
+    {
+      "field": "context.sender_txn_count_1h",
+      "issue": "must be an integer greater than or equal to 0"
+    },
+    {
+      "field": "amount",
+      "issue": "must be greater than 0"
+    }
+  ]
+}

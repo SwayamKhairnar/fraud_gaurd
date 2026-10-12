@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://digital-banking-fraud.local/contracts/predict-request.schema.json",
+  "title": "PredictRequest",
+  "description": "Request sent by fraud-detection-service to fraud-ml-service (POST /v1/predict). Contract version 1.0.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "txn_id",
+    "timestamp",
+    "type",
+    "amount",
+    "sender_account",
+    "receiver_account",
+    "context"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"],
+      "description": "Contract version the caller is using."
+    },
+    "txn_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Unique transaction identifier. Echoed in the response. Scoring is idempotent per txn_id."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the transaction was initiated (RFC 3339, UTC recommended)."
+    },
+    "type": {
+      "type": "string",
+      "enum": ["TRANSFER", "CASH_OUT", "PAYMENT", "CASH_IN", "DEBIT"],
+      "description": "Transaction type. v1 model scores TRANSFER and CASH_OUT only; other types return scored_by_model=false."
+    },
+    "amount": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "Transaction amount in the given currency."
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "default": "INR",
+      "description": "ISO 4217 currency code. Accepted for forward compatibility; v1 model does not use it."
+    },
+    "sender_account": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "description": "Sender account identifier."
+    },
+    "receiver_account": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "description": "Receiver account identifier."
+    },
+    "channel": {
+      "type": "string",
+      "enum": ["MOBILE", "WEB", "API", "BRANCH"],
+      "description": "Originating channel. Accepted for forward compatibility; v1 model does not use it."
+    },
+    "sender_balance_before": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Sender balance before the transaction. Accepted but IGNORED by the v1 model (see ADR-0005)."
+    },
+    "receiver_balance_before": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Receiver balance before the transaction. Accepted but IGNORED by the v1 model (see ADR-0005)."
+    },
+    "context": {
+      "$ref": "#/$defs/Context"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Free-form extension point. Ignored by the v1 model. Do not rely on it for required data."
+    }
+  },
+  "$defs": {
+    "Context": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "History features computed by the caller using hour-bucketed windows (ADR-0006). All counts exclude the current transaction. Exact definitions: fraud-ml-service/docs/02-feature-spec.md.",
+      "required": [
+        "sender_txn_count_1h",
+        "sender_txn_count_24h",
+        "sender_amount_sum_24h",
+        "sender_unique_receivers_24h",
+        "sender_avg_amount_30d",
+        "is_new_receiver",
+        "receiver_incoming_count_24h",
+        "receiver_unique_senders_24h"
+      ],
+      "properties": {
+        "sender_txn_count_1h": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Sender's earlier transactions in the current hour bucket."
+        },
+        "sender_txn_count_24h": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Sender's earlier transactions in the current and previous 23 hour buckets."
+        },
+        "sender_amount_sum_24h": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Sum of amounts of those 24h transactions."
+        },
+        "sender_unique_receivers_24h": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Distinct receivers the sender paid in the 24h window."
+        },
+        "sender_avg_amount_30d": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Mean amount of the sender's earlier transactions over the 30d window (720 hour buckets). null if there are none."
+        },
+        "is_new_receiver": {
+          "type": "boolean",
+          "description": "True if the sender has no earlier transaction to this receiver within the 30d window."
+        },
+        "receiver_incoming_count_24h": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Earlier incoming transactions to the receiver (from any sender) in the 24h window."
+        },
+        "receiver_unique_senders_24h": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Distinct senders that paid the receiver in the 24h window."
+        }
+      }
+    }
+  }
+}

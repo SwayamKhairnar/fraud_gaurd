@@ -1,0 +1,47 @@
+# Local development stack. Start the ML service alone:   docker compose up --build
+# Add monitoring (Prometheus + Grafana):                  docker compose --profile monitoring up --build
+# Other services (Kafka, Redis, Postgres, Java services) will be added in later phases.
+
+services:
+  fraud-ml-service:
+    build:
+      context: ../fraud-ml-service
+    image: fraud-ml-service:dev
+    container_name: fraud-ml-service
+    ports:
+      - "8000:8000"
+    environment:
+      MODEL_DIR: /srv/artifacts/models
+      LOG_LEVEL: INFO
+      API_KEY_ENABLED: "false"
+      WEB_CONCURRENCY: "1"
+    volumes:
+      # The model is mounted, not baked into the image. CURRENT and vN/ must exist here.
+      - ../fraud-ml-service/artifacts/models:/srv/artifacts/models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8000/health/ready"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus      # pin a specific version tag before relying on this
+    profiles: ["monitoring"]
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - fraud-ml-service
+
+  grafana:
+    image: grafana/grafana      # pin a specific version tag before relying on this
+    profiles: ["monitoring"]
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus

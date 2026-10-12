@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "txn_id": "txn-20261011-000124",
+  "scored_by_model": false,
+  "fraud_score": null,
+  "decision": "ALLOW",
+  "reason_codes": ["UNSCORED_TYPE"],
+  "model_version": "v1",
+  "latency_ms": 0.9,
+  "scored_at": "2026-10-11T12:15:30.012Z"
+}

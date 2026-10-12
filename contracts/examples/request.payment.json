@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "txn_id": "txn-20261011-000124",
+  "timestamp": "2026-10-11T12:15:30Z",
+  "type": "PAYMENT",
+  "amount": 899.0,
+  "sender_account": "C1231006815",
+  "receiver_account": "M1979787155",
+  "context": {
+    "sender_txn_count_1h": 0,
+    "sender_txn_count_24h": 1,
+    "sender_amount_sum_24h": 480000.0,
+    "sender_unique_receivers_24h": 1,
+    "sender_avg_amount_30d": null,
+    "is_new_receiver": false,
+    "receiver_incoming_count_24h": 40,
+    "receiver_unique_senders_24h": 38
+  }
+}

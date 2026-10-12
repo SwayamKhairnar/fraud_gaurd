@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: fraud-ml-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["fraud-ml-service:8000"]
+
+  # Later phases: add one job per service, for example:
+  # - job_name: fraud-detection-service
+  #   metrics_path: /actuator/prometheus
+  #   static_configs:
+  #     - targets: ["fraud-detection-service:8080"]

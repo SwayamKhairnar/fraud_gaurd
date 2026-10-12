@@ -1,0 +1,11 @@
+# Operational threshold overrides. When a value is set here it overrides the thresholds stored with the
+# active model version (artifacts/models/<version>/thresholds.yaml). Leave a value as null to use the model's.
+#
+# PLACEHOLDER VALUES: the real ones are chosen on the validation set (training plan, section 7).
+review_threshold: null     # score >= this -> REVIEW   (starting guess if needed: 0.50)
+block_threshold: null      # score >= this -> BLOCK    (starting guess if needed: 0.90)
+
+# How the thresholds are chosen during training (documentation; used by training/select_thresholds.py)
+selection_policy:
+  block: "highest recall subject to precision >= 0.90 on the validation set"
+  review: "lowest threshold keeping review volume <= 1% of scored transactions"

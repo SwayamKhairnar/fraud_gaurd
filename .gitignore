@@ -1,0 +1,44 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.egg-info/
+.ipynb_checkpoints/
+
+# --- Data (never commit) ---
+fraud-ml-service/data/raw/*
+fraud-ml-service/data/processed/*
+!fraud-ml-service/data/raw/.gitkeep
+!fraud-ml-service/data/processed/.gitkeep
+*.csv
+*.parquet
+*.zip
+
+# --- Model binaries (keep metadata/metrics/feature_list in Git) ---
+fraud-ml-service/artifacts/models/*/model.*
+fraud-ml-service/artifacts/models/*/*.joblib
+fraud-ml-service/artifacts/models/*/*.pkl
+
+# --- IDE / OS ---
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# --- Java (later services) ---
+target/
+build/
+*.class
+*.jar
+
+# --- Docker / local infra ---
+infra/.env
+infra/data/

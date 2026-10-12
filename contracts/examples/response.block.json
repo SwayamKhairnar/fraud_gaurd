@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "txn_id": "txn-20261011-000123",
+  "scored_by_model": true,
+  "fraud_score": 0.93,
+  "decision": "BLOCK",
+  "reason_codes": ["HIGH_AMOUNT", "NEW_RECEIVER", "RECEIVER_FAN_IN"],
+  "model_version": "v1",
+  "latency_ms": 7.4,
+  "scored_at": "2026-10-11T12:12:00.021Z"
+}

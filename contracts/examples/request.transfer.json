@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "txn_id": "txn-20261011-000123",
+  "timestamp": "2026-10-11T12:12:00Z",
+  "type": "TRANSFER",
+  "amount": 480000.0,
+  "currency": "INR",
+  "sender_account": "C1231006815",
+  "receiver_account": "C553264065",
+  "channel": "MOBILE",
+  "context": {
+    "sender_txn_count_1h": 3,
+    "sender_txn_count_24h": 4,
+    "sender_amount_sum_24h": 520000.0,
+    "sender_unique_receivers_24h": 3,
+    "sender_avg_amount_30d": 9500.0,
+    "is_new_receiver": true,
+    "receiver_incoming_count_24h": 12,
+    "receiver_unique_senders_24h": 11
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://digital-banking-fraud.local/contracts/predict-response.schema.json",
+  "title": "PredictResponse",
+  "description": "Response from fraud-ml-service (POST /v1/predict). Contract version 1.0. The decision is a recommendation; the final decision belongs to fraud-detection-service.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "txn_id",
+    "scored_by_model",
+    "fraud_score",
+    "decision",
+    "reason_codes",
+    "model_version",
+    "latency_ms",
+    "scored_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"]
+    },
+    "txn_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Echo of the request txn_id."
+    },
+    "scored_by_model": {
+      "type": "boolean",
+      "description": "False when the transaction type is not covered by the model. In that case fraud_score is null and the caller must rely on its own rules."
+    },
+    "fraud_score": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Estimated risk, 0 (safe) to 1 (very risky). null when scored_by_model is false."
+    },
+    "decision": {
+      "type": "string",
+      "enum": ["ALLOW", "REVIEW", "BLOCK"],
+      "description": "Recommended action from score thresholds. ALLOW when scored_by_model is false."
+    },
+    "reason_codes": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "enum": [
+          "HIGH_AMOUNT",
+          "NEW_RECEIVER",
+          "HIGH_SENDER_VELOCITY",
+          "HIGH_SENDER_AMOUNT_24H",
+          "UNUSUAL_AMOUNT_FOR_SENDER",
+          "RECEIVER_FAN_IN",
+          "RISKY_TRANSACTION_TYPE",
+          "UNSCORED_TYPE"
+        ]
+      },
+      "description": "Short tags explaining the score, most important first. May be empty."
+    },
+    "model_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+$",
+      "description": "Version of the model that was loaded when this response was produced."
+    },
+    "latency_ms": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Server-side processing time in milliseconds."
+    },
+    "scored_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the response was produced (UTC)."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "scored_by_model": { "const": true } },
+        "required": ["scored_by_model"]
+      },
+      "then": {
+        "properties": { "fraud_score": { "type": "number" } }
+      },
+      "else": {
+        "properties": {
+          "fraud_score": { "type": "null" },
+          "decision": { "const": "ALLOW" }
+        }
+      }
+    }
+  ]
+}

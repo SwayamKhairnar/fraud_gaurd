@@ -1,0 +1,29 @@
+# Tool configuration only (the project is not installed as a package; dependencies live in requirements*.txt)
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".venv", "data", "artifacts", "notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "slow: tests that need data, artifacts, or Docker (deselect with -m 'not slow')",
+    "contract: contract and schema tests",
+    "api: HTTP endpoint tests",
+]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_ignores = true
+check_untyped_defs = true
+files = ["app"]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["tests/*"]

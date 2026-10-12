@@ -1,0 +1,83 @@
+# Settings for the offline training pipeline (training/*.py). See docs/03-training-plan.md.
+seed: 42
+
+dataset:
+  name: PaySim
+  source: kaggle:ealaxi/paysim1
+  raw_path: data/raw/PS_20174392719_1491204439457_log.csv   # verify the exact file name after download
+  processed_dir: data/processed
+
+columns:
+  excluded: [oldbalanceOrg, newbalanceOrig, oldbalanceDest, newbalanceDest, isFlaggedFraud]   # ADR-0005
+  label: isFraud
+
+scored_types: [TRANSFER, CASH_OUT]
+
+split:                       # time-based, on `step` (inclusive ranges); verify fraud counts in EDA
+  train_steps: [1, 500]
+  validation_steps: [501, 620]
+  test_steps: [621, 744]
+  min_fraud_per_split: 500
+
+windows_in_hour_buckets:     # ADR-0006
+  w1h: 1
+  w24h: 24
+  w30d: 720
+
+features:                    # order is the model input order; must equal docs/02-feature-spec.md section 5
+  - amount
+  - amount_log
+  - hour_of_day
+  - day_of_week
+  - is_cash_out
+  - sender_txn_count_1h
+  - sender_txn_count_24h
+  - sender_amount_sum_24h
+  - sender_unique_receivers_24h
+  - sender_avg_amount_30d
+  - is_new_receiver
+  - receiver_incoming_count_24h
+  - receiver_unique_senders_24h
+  - amount_to_avg_ratio
+  - sender_amount_sum_24h_ratio
+  - receiver_fan_in_ratio
+
+baselines:
+  trivial_rule:
+    amount_percentile: 99      # flag TRANSFER/CASH_OUT with amount above this percentile of the training split
+  logistic_regression:
+    class_weight: balanced
+    max_iter: 1000
+
+lightgbm:
+  params:
+    objective: binary
+    n_estimators: 2000
+    learning_rate: 0.05
+    num_leaves: 63
+    min_child_samples: 50
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_lambda: 1.0
+    # scale_pos_weight is computed from the training split (negatives / positives)
+  early_stopping_rounds: 50
+  search:
+    n_trials: 20
+    time_limit_minutes: 30
+
+evaluation:
+  primary_metric: pr_auc
+  precision_targets: [0.90, 0.50]
+  recall_target: 0.80
+  latency_samples: 1000
+
+thresholds:
+  block:
+    policy: max_recall_at_min_precision
+    min_precision: 0.90
+  review:
+    max_review_volume: 0.01     # share of scored transactions
+
+export:
+  model_dir: artifacts/models
+  next_version_prefix: v

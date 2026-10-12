@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://digital-banking-fraud.local/contracts/error.schema.json",
+  "title": "ErrorResponse",
+  "description": "Error body returned by fraud-ml-service for every non-2xx response. Contract version 1.0.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["code", "message", "request_id"],
+  "properties": {
+    "code": {
+      "type": "string",
+      "enum": [
+        "VALIDATION_ERROR",
+        "UNSUPPORTED_SCHEMA_VERSION",
+        "MODEL_NOT_READY",
+        "UNAUTHORIZED",
+        "INTERNAL_ERROR"
+      ],
+      "description": "Stable machine-readable error code. HTTP mapping: VALIDATION_ERROR and UNSUPPORTED_SCHEMA_VERSION 422, MODEL_NOT_READY 503, UNAUTHORIZED 401, INTERNAL_ERROR 500."
+    },
+    "message": {
+      "type": "string",
+      "description": "Human-readable summary. Never contains stack traces or internal paths."
+    },
+    "request_id": {
+      "type": "string",
+      "description": "Correlation ID (from the X-Request-ID header or generated). Quote this when debugging."
+    },
+    "details": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field", "issue"],
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "Dotted path to the offending field, for example context.sender_txn_count_1h."
+          },
+          "issue": {
+            "type": "string",
+            "description": "What is wrong with it."
+          }
+        }
+      },
+      "description": "Per-field problems for VALIDATION_ERROR."
+    }
+  }
+}

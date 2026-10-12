@@ -1,0 +1,6 @@
+# Offline training, EDA, and data download (not needed in the service image)
+pyarrow>=15.0          # Parquet files
+matplotlib>=3.8
+jupyterlab>=4.1
+kaggle>=1.6            # dataset download CLI
+# shap>=0.45           # optional: SHAP explanations (later; not part of v1)
